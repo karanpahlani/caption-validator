@@ -70,6 +70,18 @@ The language detection endpoint should accept POST requests with plaintext body 
 
 Expected language is `en-US`. Any other value will trigger a validation error.
 
+### Mock Server for Testing
+
+A mock language detection server is provided in the `mock/` directory:
+
+```bash
+# Start mock server
+cd mock && go run mock-server.go
+
+# Test with mock server (in another terminal)
+go run . -t_start=0 -t_end=15 -coverage=60 -endpoint=http://localhost:8081/detect testdata/sample.webvtt
+```
+
 ## Exit Codes
 
 - `0`: Success (validation passed or failed with JSON output)
