@@ -24,6 +24,14 @@ cd mock && go run mock-server.go
 ```
 You should see: `Mock language detection server starting on :8081`
 
+**If you see "address already in use" error:**
+```bash
+# Kill any process using port 8081
+lsof -ti:8081 | xargs kill -9
+# Then restart the server
+cd mock && go run mock-server.go
+```
+
 ### 3. Test the Application
 **Terminal 2 - Test successful validation (no output expected):**
 ```bash
