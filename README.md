@@ -10,57 +10,72 @@ A Go application that validates caption files (WebVTT and SRT formats) for cover
 - Returns validation errors as JSON objects
 - Dockerized for easy deployment
 
-## Usage
+## Quick Start
 
-### Command Line
-
+### 1. Run Unit Tests
 ```bash
-go run . -t_start=0 -t_end=30 -coverage=80 -endpoint=http://localhost:8080/detect testdata/sample.webvtt
+go test -v
 ```
 
-### Parameters
+### 2. Start Mock Language Detection Server
+**Terminal 1:**
+```bash
+cd mock && go run mock-server.go
+```
+You should see: `Mock language detection server starting on :8081`
+
+### 3. Test the Application
+**Terminal 2 - Test successful validation (no output expected):**
+```bash
+go run . -t_start=0 -t_end=15 -coverage=60 -endpoint=http://localhost:8081/detect testdata/sample.webvtt
+```
+
+**Test with validation failures:**
+```bash
+go run . -t_start=0 -t_end=30 -coverage=80 -endpoint=http://localhost:8081/detect testdata/sample.webvtt
+```
+
+**Test unsupported file format (exit code 1):**
+```bash
+echo "not a caption file" > test.txt
+go run . -t_start=0 -t_end=30 -coverage=80 -endpoint=http://localhost:8081/detect test.txt
+```
+
+## Parameters
 
 - `-t_start`: Start time in seconds (required)
 - `-t_end`: End time in seconds (required) 
 - `-coverage`: Required coverage percentage (default: 80)
 - `-endpoint`: Language detection endpoint URL (required)
 
-### Docker
+## Docker Usage
 
-Build the image:
+### Build and Test with Docker
 ```bash
+# Build the image
 docker build -t caption-validator .
-```
 
-Run with Docker:
-```bash
+# Run with Docker
 docker run -v $(pwd)/testdata:/captions caption-validator \
   -t_start=0 -t_end=30 -coverage=80 \
-  -endpoint=http://host.docker.internal:8080/detect \
+  -endpoint=http://host.docker.internal:8081/detect \
   /captions/sample.webvtt
 ```
 
-## Output
+## Expected Output
 
-The program outputs JSON objects for validation failures:
-
+### Validation Failures (JSON objects)
 ```json
-{"type": "caption_coverage", "required_coverage": 80, "actual_coverage": 45.5, "start_time": 0, "end_time": 30, "description": "Caption coverage of 45.50% is below required 80.00%"}
+{"type": "caption_coverage", "required_coverage": 80, "actual_coverage": 70, "start_time": 0, "end_time": 30, "description": "Caption coverage of 70.00% is below required 80.00%"}
 {"type": "incorrect_language", "detected_language": "es-ES", "expected_language": "en-US", "description": "Detected language 'es-ES' does not match expected 'en-US'"}
 ```
 
+### Success
 No output indicates successful validation.
-
-## Testing
-
-Run tests:
-```bash
-go test -v
-```
 
 ## Language Detection API
 
-The language detection endpoint should accept POST requests with plaintext body and return JSON:
+Your language detection endpoint should accept POST requests with plaintext body and return JSON:
 
 ```json
 {
@@ -68,19 +83,7 @@ The language detection endpoint should accept POST requests with plaintext body 
 }
 ```
 
-Expected language is `en-US`. Any other value will trigger a validation error.
-
-### Mock Server for Testing
-
-A mock language detection server is provided in the `mock/` directory:
-
-```bash
-# Start mock server
-cd mock && go run mock-server.go
-
-# Test with mock server (in another terminal)
-go run . -t_start=0 -t_end=15 -coverage=60 -endpoint=http://localhost:8081/detect testdata/sample.webvtt
-```
+Expected language is `en-US`. Any other value triggers a validation error.
 
 ## Exit Codes
 
