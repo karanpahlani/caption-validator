@@ -67,14 +67,17 @@ func (cv *CaptionValidator) ValidateFile(filepath string, tStart, tEnd, required
 	}
 
 	// Run validations and output errors as JSON
-	for _, err := range []any{
-		cv.validateCoverage(captions, tStart, tEnd, requiredCoverage),
-		cv.validateLanguage(captions),
-	} {
-		if err != nil {
-			if errorJSON, _ := json.Marshal(err); errorJSON != nil {
-				fmt.Println(string(errorJSON))
-			}
+	coverageErr := cv.validateCoverage(captions, tStart, tEnd, requiredCoverage)
+	if coverageErr != nil {
+		if errorJSON, _ := json.Marshal(coverageErr); errorJSON != nil {
+			fmt.Println(string(errorJSON))
+		}
+	}
+	
+	languageErr := cv.validateLanguage(captions)
+	if languageErr != nil {
+		if errorJSON, _ := json.Marshal(languageErr); errorJSON != nil {
+			fmt.Println(string(errorJSON))
 		}
 	}
 

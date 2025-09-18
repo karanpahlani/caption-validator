@@ -55,7 +55,13 @@ go run . -t_start=0 -t_end=30 -coverage=80 -endpoint=http://localhost:8081/detec
 # Build the image
 docker build -t caption-validator .
 
-# Run with Docker
+# Test successful validation (no output expected)
+docker run -v $(pwd)/testdata:/captions caption-validator \
+  -t_start=0 -t_end=30 -coverage=60 \
+  -endpoint=http://host.docker.internal:8081/detect \
+  /captions/sample.webvtt
+
+# Test with validation failures
 docker run -v $(pwd)/testdata:/captions caption-validator \
   -t_start=0 -t_end=30 -coverage=80 \
   -endpoint=http://host.docker.internal:8081/detect \
