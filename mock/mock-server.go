@@ -12,6 +12,8 @@ type LanguageResponse struct {
 	Lang string `json:"lang"`
 }
 
+const mockLanguage = "es-ES"
+
 func detectHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
@@ -28,18 +30,18 @@ func detectHandler(w http.ResponseWriter, r *http.Request) {
 
 	fmt.Printf("Received text: %s\n", string(body))
 
-	// Always return en-US for testing
-	response := LanguageResponse{Lang: "en-US"}
-	
+	// Always return mock language for testing
+	response := LanguageResponse{Lang: mockLanguage}
+
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
 }
 
 func main() {
 	http.HandleFunc("/detect", detectHandler)
-	
+
 	fmt.Println("Mock language detection server starting on :8081")
-	fmt.Println("POST /detect - accepts plaintext, returns {\"lang\": \"en-US\"}")
-	
+	fmt.Printf("POST /detect - accepts plaintext, returns {\"lang\": \"%s\"}\n", mockLanguage)
+
 	log.Fatal(http.ListenAndServe(":8081", nil))
 }

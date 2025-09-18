@@ -79,20 +79,20 @@ docker run -v $(pwd)/testdata:/captions caption-validator \
 ## Expected Output
 
 ### Validation Failures (JSON objects)
-**Coverage failure (with mock server returning en-US):**
+**Coverage failure:**
 ```json
 {"type": "caption_coverage", "required_coverage": 80, "actual_coverage": 70, "start_time": 0, "end_time": 30, "description": "Caption coverage of 70.00% is below required 80.00%"}
 ```
 
-**Language failure example (requires endpoint returning non-en-US):**
+**Language failure (with mock server returning es-ES):**
 ```json
 {"type": "incorrect_language", "detected_language": "es-ES", "expected_language": "en-US", "description": "Detected language 'es-ES' does not match expected 'en-US'"}
 ```
 
-**To test language validation failure:**
-1. Modify `mock/mock-server.go` line 32: change `"en-US"` to `"es-ES"`
+**To test different language responses:**
+1. Modify the `mockLanguage` constant in `mock/mock-server.go` line 15
 2. Restart the mock server: `lsof -ti:8081 | xargs kill -9 && cd mock && go run mock-server.go`
-3. Run the Docker command again to see both coverage and language errors
+3. Run the tests again to see how different language codes affect validation
 
 ### Success
 No output indicates successful validation.
